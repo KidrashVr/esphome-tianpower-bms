@@ -13,10 +13,11 @@ CONF_CHARGING = "charging"
 CONF_DISCHARGING = "discharging"
 CONF_LIMITING_CURRENT = "limiting_current"
 CONF_BALANCING = "balancing"
+CONF_HEATING = "heating"
 
 CELL_BALANCING_SENSORS = [f"cell_balancing_{i}" for i in range(1, 25)]
 
-# key: binary_sensor_schema kwargs
+# Inserito CONF_HEATING qui dentro per la generazione automatica delle entità
 BINARY_SENSOR_DEFS = {
     CONF_ONLINE_STATUS: {
         "device_class": DEVICE_CLASS_CONNECTIVITY,
@@ -26,6 +27,7 @@ BINARY_SENSOR_DEFS = {
     CONF_DISCHARGING: {"icon": "mdi:power-plug"},
     CONF_LIMITING_CURRENT: {"icon": "mdi:car-speed-limiter"},
     CONF_BALANCING: {"icon": "mdi:scale-balance"},
+    CONF_HEATING: {"device_class": "heat"},
 }
 
 _CELL_BALANCING_SCHEMA = binary_sensor.binary_sensor_schema(icon="mdi:scale-balance")
@@ -39,7 +41,6 @@ CONFIG_SCHEMA = TIANPOWER_BMS_BLE_COMPONENT_SCHEMA.extend(
         **{cv.Optional(key): _CELL_BALANCING_SCHEMA for key in CELL_BALANCING_SENSORS},
     }
 )
-
 
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_TIANPOWER_BMS_BLE_ID])
