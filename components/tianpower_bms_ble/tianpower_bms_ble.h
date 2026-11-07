@@ -139,6 +139,8 @@ class TianpowerBmsBle :
 
   void write_register(uint8_t address, uint16_t value);
   void on_tianpower_bms_ble_data(const uint8_t &handle, const std::vector<uint8_t> &data);
+  void set_heating_binary_sensor(binary_sensor::BinarySensor *binary_sensor) { this->heating_binary_sensor_ = binary_sensor; }
+
 
  protected:
   binary_sensor::BinarySensor *charging_binary_sensor_{nullptr};
@@ -181,6 +183,9 @@ class TianpowerBmsBle :
   text_sensor::TextSensor *current_protection_text_sensor_{nullptr};
   text_sensor::TextSensor *temperature_protection_text_sensor_{nullptr};
   text_sensor::TextSensor *errors_text_sensor_{nullptr};
+
+  binary_sensor::BinarySensor *heating_binary_sensor_{nullptr};
+
 
   struct Cell {
     sensor::Sensor *cell_voltage_sensor_{nullptr};
