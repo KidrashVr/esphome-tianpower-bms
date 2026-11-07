@@ -319,41 +319,19 @@ void TianpowerBmsBle::decode_mosfet_status_data_(const std::vector<uint8_t> &dat
   ESP_LOGI(TAG, "Mosfet status frame received");
   log_hex_chunked(TAG, data.data(), data.size());
 
-  // Byte Len Payload      Description                      Unit  Precision
-  //  0    1  0x55         Start of frame
-  //  1    1  0x14         Frame type (Response)
-  //  2    1  0x85         Address
-  //  3    2  0x08 0x23    Mosfet Status Bitmask (0b100000100011)
-  this->publish_state_(this->charging_binary_sensor_, (bool) check_bit_(tianpower_get_16bit(3), 1));
-  this->publish_state_(this->discharging_binary_sensor_, (bool) check_bit_(tianpower_get_16bit(3), 2));
+  uint16_t mosfet_status = tianpower_get_16bit(3);
+
+  this->publish_state_(this->charging_binary_sensor_, (bool) check_bit_(mosfet_status, 1));
+  this->publish_state_(this->discharging_binary_sensor_, (bool) check_bit_(mosfet_status, 2));
   this->publish_state_(this->limiting_current_binary_sensor_,
-                       check_bit_(tianpower_get_16bit(3), 16) || check_bit_(tianpower_get_16bit(3), 32));
+                       check_bit_(mosfet_status, 16) || check_bit_(mosfet_status, 32));
 
-  //  5    2  0x00 0x00    Overvoltage protection bitmask
-  //  7    2  0x00 0x00    Undervoltage protection bitmask
-
-  //  9    2  0x00 0x00    High Alarm Bitmask
-  //  11   2  0x00 0x00    Low Alarm Bitmask
-  // Combine high and low alarm bitmasks into one 32-bit alarm sensor
-  uint16_t high_alarm = tianpower_get_16bit(9);
-  uint16_t low_alarm = tianpower_get_16bit(11);
-  uint32_t combined_alarms = (uint32_t(high_alarm) << 16) | low_alarm;
-  this->publish_state_(this->alarm_bitmask_sensor_, (float) combined_alarms);
-
-  //  13   2  0x00 0x00    Balancing Bitmask
-  uint16_t balancing_bitmask = tianpower_get_16bit(13);
-  this->publish_state_(this->balancing_bitmask_sensor_, (float) balancing_bitmask);
-  this->publish_state_(this->balancing_binary_sensor_, balancing_bitmask != 0);
-
-  for (uint8_t i = 0; i < 16; i++) {
-    bool is_balancing = (balancing_bitmask & (1 << i)) != 0;
-    this->publish_state_(this->cells_[i].balancing_binary_sensor_, is_balancing);
+  // LA NOSTRA MODIFICA:
+  bool heating_active = (mosfet_status & 0x0400) == 0x0400;
+  if (id(barbotta_pad_scaldanti) != nullptr) {
+    id(barbotta_pad_scaldanti).publish_state(heating_active);
   }
 
-  //  15   2  0x00 0x00    Unused
-  //  17   2  0x00 0x00    Unused
-  //  19   1  0xaa         End of frame
-}
 
 void TianpowerBmsBle::decode_temperature_data_(const std::vector<uint8_t> &data) {
   auto tianpower_get_16bit = [&](size_t i) -> uint16_t {
