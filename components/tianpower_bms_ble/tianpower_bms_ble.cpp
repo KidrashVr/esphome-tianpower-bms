@@ -321,6 +321,9 @@ void TianpowerBmsBle::decode_mosfet_status_data_(const std::vector<uint8_t> &dat
 
   uint16_t mosfet_status = tianpower_get_16bit(3);
   ESP_LOGD(TAG, "Mosfet status raw: 0x%04X", mosfet_status);
+  ESP_LOGD(TAG, "Mosfet unk1 0x%04X unk2 0x%04X", tianpower_get_16bit(5), tianpower_get_16bit(7));
+  ESP_LOGD(TAG, "Mosfet hi 0x%04X lo 0x%04X bal 0x%04X", tianpower_get_16bit(9), tianpower_get_16bit(11), tianpower_get_16bit(13));
+  
   
 
   this->publish_state_(this->charging_binary_sensor_, (bool) check_bit_(mosfet_status, 1));
