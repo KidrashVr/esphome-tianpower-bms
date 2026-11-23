@@ -323,6 +323,7 @@ void TianpowerBmsBle::decode_mosfet_status_data_(const std::vector<uint8_t> &dat
   ESP_LOGD(TAG, "Mosfet status raw: 0x%04X", mosfet_status);
   ESP_LOGD(TAG, "Mosfet unk1 0x%04X unk2 0x%04X", tianpower_get_16bit(5), tianpower_get_16bit(7));
   ESP_LOGD(TAG, "Mosfet hi 0x%04X lo 0x%04X bal 0x%04X", tianpower_get_16bit(9), tianpower_get_16bit(11), tianpower_get_16bit(13));
+  ESP_LOGD(TAG, "Gen volt 0x%04X curr 0x%04X temp 0x%04X alarm 0x%04X", tianpower_get_16bit(11), tianpower_get_16bit(13), tianpower_get_16bit(15), tianpower_get_16bit(17));
   
   
 
